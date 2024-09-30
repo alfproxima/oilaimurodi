@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -75,7 +75,16 @@
         <option value="male">Мужчина</option>
         <option value="female">Женщина</option>
     </select>
-    <input type="text" id="parentName" placeholder="Имя родителя" />
+    <select id="relation">
+        <option value="parent">Родитель</option>
+        <option value="child">Ребенок</option>
+        <option value="sibling">Брат/Сестра</option>
+        <option value="uncle">Дядя</option>
+        <option value="aunt">Тетя</option>
+        <option value="spouse">Супруг/Супруга</option>
+        <option value="noRelation">Без родителей</option>
+    </select>
+    <input type="text" id="relativeName" placeholder="Имя родственника (не обязательно)" />
     <button onclick="addPerson()">Добавить</button>
 </div>
 
@@ -137,44 +146,56 @@
     function addPerson() {
         const name = document.getElementById('name').value;
         const gender = document.getElementById('gender').value;
-        const parentName = document.getElementById('parentName').value;
+        const relation = document.getElementById('relation').value;
+        const relativeName = document.getElementById('relativeName').value;
 
-        if (!name || !parentName) {
-            alert('Введите имя и имя родителя!');
+        if (!name) {
+            alert('Введите имя!');
             return;
         }
 
-        // Функция поиска родителя по имени
-        function findPersonByName(node, name) {
-            if (node.name === name) {
-                return node;
-            } else if (node.children) {
-                for (let child of node.children) {
-                    let result = findPersonByName(child, name);
-                    if (result) return result;
+        // Создание нового узла
+        const newPerson = {
+            name: name,
+            gender: gender,
+            children: []
+        };
+
+        // Если выбрана опция "Без родителей"
+        if (relation === "noRelation") {
+            treeData.children.push(newPerson);
+        } else if (relativeName) {
+            // Функция поиска родственника по имени
+            function findPersonByName(node, name) {
+                if (node.name === name) {
+                    return node;
+                } else if (node.children) {
+                    for (let child of node.children) {
+                        let result = findPersonByName(child, name);
+                        if (result) return result;
+                    }
                 }
+                return null;
             }
-            return null;
+
+            const relative = findPersonByName(treeData, relativeName);
+            if (relative) {
+                if (!relative.children) {
+                    relative.children = [];
+                }
+                relative.children.push(newPerson);
+            } else {
+                alert('Родственник не найден!');
+            }
+        } else {
+            alert('Выберите родственника или выберите "Без родителей"!');
         }
 
-        const parent = findPersonByName(treeData, parentName);
-        if (parent) {
-            if (!parent.children) {
-                parent.children = [];
-            }
-            parent.children.push({
-                name: name,
-                gender: gender,
-                children: []
-            });
-            updateTree();
-        } else {
-            alert('Родитель не найден!');
-        }
+        updateTree();
 
         // Очистка полей
         document.getElementById('name').value = '';
-        document.getElementById('parentName').value = '';
+        document.getElementById('relativeName').value = '';
     }
 
     // Инициализация дерева
