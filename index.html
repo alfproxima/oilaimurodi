@@ -1,54 +1,176 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Family Tree Builder</title>
-  <style>
-    /* CSS код из предыдущего примера */
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Родословное Дерево</title>
+    
+    <!-- CSS код -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .tree ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+
+        .tree li {
+            margin: 5px 0;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .tree li::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1px;
+            height: 100%;
+            border-left: 1px solid #000;
+        }
+
+        .tree li::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: -20px;
+            width: 20px;
+            border-top: 1px solid #000;
+        }
+
+        .person {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .person-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background-color: #e6e6e6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+        }
+
+        .male {
+            background-image: url('https://via.placeholder.com/40x40?text=%F0%9F%91%A8%F0%9F%92%84');
+            background-size: cover;
+        }
+
+        .female {
+            background-image: url('https://via.placeholder.com/40x40?text=%F0%9F%91%A9%F0%9F%92%85');
+            background-size: cover;
+        }
+
+        .add-relative-form {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
 
-<h2>Interactive Family Tree Builder</h2>
+<h2>Родословное Дерево</h2>
 
+<!-- Дерево -->
 <div class="tree">
-  <ul id="family-tree">
-    <li>
-      <a href="#" onclick="toggleVisibility(event)">Kuchak</a>
-      <ul>
+    <ul id="family-tree">
         <li>
-          <a href="#" onclick="toggleVisibility(event)">Halim</a>
-          <ul></ul>
+            <div class="person" onclick="removePerson(event, 'Кучак')">
+                <div class="person-icon male"></div>
+                <span>Кучак</span>
+            </div>
+            <ul></ul>
         </li>
-        <li>
-          <a href="#" onclick="toggleVisibility(event)">Azim</a>
-          <ul></ul>
-        </li>
-      </ul>
-    </li>
-  </ul>
+    </ul>
 </div>
 
+<!-- Форма для добавления родственника -->
 <div class="add-relative-form">
-  <h3>Add a Relative</h3>
-  <label for="relative-name">Relative Name:</label>
-  <input type="text" id="relative-name" placeholder="Enter name" />
-  <br><br>
-  <label for="relative-type">Type of Relative:</label>
-  <select id="relative-type">
-    <option value="child">Child</option>
-    <option value="sibling">Sibling</option>
-  </select>
-  <br><br>
-  <label for="parent-name">Parent/Sibling's Name:</label>
-  <input type="text" id="parent-name" placeholder="Enter name of parent/sibling" />
-  <br><br>
-  <button onclick="addRelative()">Add Relative</button>
+    <h3>Добавить родственника</h3>
+    <label for="relative-name">Имя родственника:</label>
+    <input type="text" id="relative-name" placeholder="Введите имя" />
+    <br><br>
+    <label for="relative-gender">Пол:</label>
+    <select id="relative-gender">
+        <option value="male">Мужчина</option>
+        <option value="female">Женщина</option>
+    </select>
+    <br><br>
+    <label for="relative-type">Тип родственника:</label>
+    <select id="relative-type">
+        <option value="child">Сын/Дочь</option>
+        <option value="sibling">Брат/Сестра</option>
+        <option value="parent">Мать/Отец</option>
+        <option value="uncle_aunt">Дядя/Тётя</option>
+    </select>
+    <br><br>
+    <label for="parent-name">Имя родителя/сиблинга:</label>
+    <input type="text" id="parent-name" placeholder="Введите имя родителя/сиблинга" />
+    <br><br>
+    <button onclick="addRelative()">Добавить родственника</button>
 </div>
 
+<!-- JavaScript код -->
 <script>
-  /* JavaScript код из предыдущего примера */
+    function addRelative() {
+        const relativeName = document.getElementById('relative-name').value;
+        const relativeGender = document.getElementById('relative-gender').value;
+        const relativeType = document.getElementById('relative-type').value;
+        const parentName = document.getElementById('parent-name').value;
+
+        const parentLink = Array.from(document.querySelectorAll('#family-tree span')).find(span => span.textContent === parentName);
+
+        if (parentLink) {
+            const parentUl = parentLink.parentElement.querySelector('ul') || document.createElement('ul');
+            if (!parentLink.parentElement.querySelector('ul')) {
+                parentLink.parentElement.appendChild(parentUl);
+            }
+
+            const newLi = document.createElement('li');
+            const iconClass = relativeGender === 'male' ? 'male' : 'female';
+            newLi.innerHTML = `
+                <div class="person" onclick="removePerson(event, '${relativeName}')">
+                    <div class="person-icon ${iconClass}"></div>
+                    <span>${relativeName}</span>
+                </div>
+                <ul></ul>
+            `;
+
+            if (relativeType === 'child') {
+                parentUl.appendChild(newLi);
+            } else if (relativeType === 'sibling') {
+                parentLink.parentElement.parentElement.appendChild(newLi);
+            } else if (relativeType === 'parent') {
+                const grandparentLi = parentLink.closest('ul').parentElement;
+                grandparentLi.appendChild(newLi);
+            } else if (relativeType === 'uncle_aunt') {
+                const grandparentUl = parentLink.closest('ul').parentElement.parentElement;
+                grandparentUl.appendChild(newLi);
+            }
+
+            // Очистка полей
+            document.getElementById('relative-name').value = '';
+            document.getElementById('parent-name').value = '';
+        } else {
+            alert('Родитель/сиблинг не найден.');
+        }
+    }
+
+    function removePerson(event, personName) {
+        event.stopPropagation();
+        if (confirm(`Удалить ${personName} из списка?`)) {
+            const li = event.target.closest('li');
+            li.parentElement.removeChild(li);
+        }
+    }
 </script>
 
 </body>
