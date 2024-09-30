@@ -8,22 +8,31 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #f4f4f4;
+            background: linear-gradient(to bottom right, #ffefba, #ffffff);
+            /* Градиентный фон от светло-желтого к белому */
+            color: #333;
         }
 
         #tree-container {
             width: 100%;
-            height: 100vh;
+            height: calc(100vh - 150px); /* Оставляем место для формы */
+            overflow: auto;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            background-color: #ffffff; /* Белый фон для дерева */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень для контейнера */
+            margin-bottom: 20px; /* Отступ внизу */
         }
 
         .node circle {
             fill: #fff;
             stroke: steelblue;
-            stroke-width: 3px;
+            stroke-width: 4px; /* Увеличена ширина обводки */
+            r: 20; /* Увеличенный радиус круга */
         }
 
         .node text {
-            font: 12px sans-serif;
+            font: 14px sans-serif; /* Увеличен шрифт для имени */
         }
 
         .link {
@@ -33,22 +42,29 @@
         }
 
         .male circle {
-            fill: #add8e6;
+            fill: #add8e6; /* Цвет для мужчин */
         }
 
         .female circle {
-            fill: #ffb6c1;
+            fill: #ffb6c1; /* Цвет для женщин */
         }
 
         .add-form {
             margin-top: 20px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9); /* Полупрозрачный фон для формы */
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         .add-form input, .add-form select, .add-form button {
             padding: 10px;
             margin: 10px;
-            border: 1px solid #ccc;
+            border: 2px solid #ccc;
             border-radius: 4px;
+            width: calc(100% - 22px); /* Учитываем отступы */
+            max-width: 300px; /* Максимальная ширина */
+            font-size: 16px;
         }
 
         .add-form button {
@@ -76,13 +92,13 @@
         <option value="female">Женщина</option>
     </select>
     <select id="relation">
+        <option value="noRelation">Без родителей</option>
         <option value="parent">Родитель</option>
         <option value="child">Ребенок</option>
         <option value="sibling">Брат/Сестра</option>
         <option value="uncle">Дядя</option>
         <option value="aunt">Тетя</option>
         <option value="spouse">Супруг/Супруга</option>
-        <option value="noRelation">Без родителей</option>
     </select>
     <input type="text" id="relativeName" placeholder="Имя родственника (не обязательно)" />
     <button onclick="addPerson()">Добавить</button>
@@ -99,13 +115,14 @@
 
     function updateTree() {
         // Очищаем контейнер для перерисовки
-        document.getElementById('tree-container').innerHTML = '';
+        const container = d3.select("#tree-container");
+        container.selectAll("*").remove(); // Удаляем всё перед перерисовкой
 
         const margin = { top: 20, right: 120, bottom: 20, left: 120 },
               width = window.innerWidth - margin.right - margin.left,
               height = window.innerHeight - margin.top - margin.bottom;
 
-        const svg = d3.select("#tree-container").append("svg")
+        const svg = container.append("svg")
             .attr("width", width + margin.right + margin.left)
             .attr("height", height + margin.top + margin.bottom)
           .append("g")
@@ -134,7 +151,7 @@
             .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
 
         node.append("circle")
-            .attr("r", 10);
+            .attr("r", 20); // Увеличен радиус круга
 
         node.append("text")
             .attr("dy", ".35em")
