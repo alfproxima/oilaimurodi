@@ -3,57 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Семейное дерево</title>
-
+    <title>Семейное Дерево</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
             text-align: center;
-        }
-
-        h1 {
-            color: #333;
+            background-color: #f4f4f4;
         }
 
         #tree-container {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            margin-top: 50px;
+            width: 100%;
+            height: 100vh;
         }
 
-        .node {
-            border: 2px solid #ccc;
-            border-radius: 50%;
-            padding: 10px;
-            width: 100px;
-            height: 100px;
-            background-color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: absolute;
+        .node circle {
+            fill: #fff;
+            stroke: steelblue;
+            stroke-width: 3px;
         }
 
-        .node.male {
-            background-color: #add8e6;
+        .node text {
+            font: 12px sans-serif;
         }
 
-        .node.female {
-            background-color: #ffb6c1;
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 2px;
         }
 
-        .line {
-            position: absolute;
-            width: 2px;
-            background-color: #000;
+        .male circle {
+            fill: #add8e6;
+        }
+
+        .female circle {
+            fill: #ffb6c1;
         }
 
         .add-form {
-            margin-top: 30px;
+            margin-top: 20px;
         }
 
         .add-form input, .add-form select, .add-form button {
@@ -91,64 +79,106 @@
     <button onclick="addPerson()">Добавить</button>
 </div>
 
+<script src="https://d3js.org/d3.v6.min.js"></script>
+
 <script>
-    let treeData = [];
+    let treeData = {
+        name: "Кучак",
+        gender: "male",
+        children: []
+    };
+
+    function updateTree() {
+        // Очищаем контейнер для перерисовки
+        document.getElementById('tree-container').innerHTML = '';
+
+        const margin = { top: 20, right: 120, bottom: 20, left: 120 },
+              width = window.innerWidth - margin.right - margin.left,
+              height = window.innerHeight - margin.top - margin.bottom;
+
+        const svg = d3.select("#tree-container").append("svg")
+            .attr("width", width + margin.right + margin.left)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        const root = d3.hierarchy(treeData);
+
+        const treeLayout = d3.tree().size([height, width - 160]);
+
+        const nodes = treeLayout(root);
+
+        // Линии (ветви)
+        svg.selectAll(".link")
+            .data(nodes.links())
+          .enter().append("path")
+            .attr("class", "link")
+            .attr("d", d3.linkHorizontal()
+                .x(d => d.y)
+                .y(d => d.x));
+
+        // Узлы (члены семьи)
+        const node = svg.selectAll(".node")
+            .data(nodes.descendants())
+          .enter().append("g")
+            .attr("class", d => "node " + (d.data.gender === 'male' ? 'male' : 'female'))
+            .attr("transform", d => "translate(" + d.y + "," + d.x + ")");
+
+        node.append("circle")
+            .attr("r", 10);
+
+        node.append("text")
+            .attr("dy", ".35em")
+            .attr("x", d => d.children ? -13 : 13)
+            .style("text-anchor", d => d.children ? "end" : "start")
+            .text(d => d.data.name);
+    }
 
     function addPerson() {
         const name = document.getElementById('name').value;
         const gender = document.getElementById('gender').value;
         const parentName = document.getElementById('parentName').value;
 
-        if (!name) {
-            alert('Введите имя!');
+        if (!name || !parentName) {
+            alert('Введите имя и имя родителя!');
             return;
         }
 
-        const person = {
-            name: name,
-            gender: gender,
-            parent: parentName || null
-        };
-
-        treeData.push(person);
-        updateTree();
-    }
-
-    function updateTree() {
-        const container = document.getElementById('tree-container');
-        container.innerHTML = '';  // Очистка контейнера
-
-        let parentPositions = {};
-
-        treeData.forEach((person, index) => {
-            const node = document.createElement('div');
-            node.classList.add('node');
-            node.classList.add(person.gender === 'male' ? 'male' : 'female');
-            node.innerText = person.name;
-            node.style.top = `${index * 120}px`;
-            node.style.left = `${index * 150}px`;
-            container.appendChild(node);
-
-            // Сохранение позиции родителя
-            if (!parentPositions[person.name]) {
-                parentPositions[person.name] = { top: index * 120, left: index * 150 };
-            }
-
-            // Рисование линий к родителям
-            if (person.parent) {
-                const parentPosition = parentPositions[person.parent];
-                if (parentPosition) {
-                    const line = document.createElement('div');
-                    line.classList.add('line');
-                    const lineHeight = Math.abs(parentPosition.top - index * 120);
-                    line.style.height = `${lineHeight}px`;
-                    line.style.top = `${Math.min(parentPosition.top, index * 120)}px`;
-                    line.style.left = `${(index * 150) + 50}px`;
-                    container.appendChild(line);
+        // Функция поиска родителя по имени
+        function findPersonByName(node, name) {
+            if (node.name === name) {
+                return node;
+            } else if (node.children) {
+                for (let child of node.children) {
+                    let result = findPersonByName(child, name);
+                    if (result) return result;
                 }
             }
-        });
+            return null;
+        }
+
+        const parent = findPersonByName(treeData, parentName);
+        if (parent) {
+            if (!parent.children) {
+                parent.children = [];
+            }
+            parent.children.push({
+                name: name,
+                gender: gender,
+                children: []
+            });
+            updateTree();
+        } else {
+            alert('Родитель не найден!');
+        }
+
+        // Очистка полей
+        document.getElementById('name').value = '';
+        document.getElementById('parentName').value = '';
     }
+
+    // Инициализация дерева
+    updateTree();
 </script>
 
 </body>
