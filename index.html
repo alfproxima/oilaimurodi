@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Красивое семейное дерево</title>
-    
-    <!-- CSS код -->
+    <title>Семейное Дерево</title>
+
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -93,12 +92,12 @@
         }
 
         .male {
-            background-image: url('https://via.placeholder.com/60x60?text=%F0%9F%91%A8');
+            background-image: url('https://via.placeholder.com/60x60?text=👨');
             background-size: cover;
         }
 
         .female {
-            background-image: url('https://via.placeholder.com/60x60?text=%F0%9F%91%A9');
+            background-image: url('https://via.placeholder.com/60x60?text=👩');
             background-size: cover;
         }
 
@@ -131,7 +130,6 @@
 
 <h2>Семейное Дерево</h2>
 
-<!-- Дерево -->
 <div class="tree">
     <ul id="family-tree">
         <li>
@@ -141,7 +139,6 @@
     </ul>
 </div>
 
-<!-- Форма для добавления родственника -->
 <div class="add-relative-form">
     <h3>Добавить родственника</h3>
     <label for="relative-name">Имя родственника:</label>
@@ -166,13 +163,17 @@
     <button onclick="addRelative()">Добавить родственника</button>
 </div>
 
-<!-- JavaScript код -->
 <script>
     function addRelative() {
         const relativeName = document.getElementById('relative-name').value;
         const relativeGender = document.getElementById('relative-gender').value;
         const relativeType = document.getElementById('relative-type').value;
         const parentName = document.getElementById('parent-name').value;
+
+        if (!relativeName || !parentName) {
+            alert('Введите имя родственника и родителя/сиблинга.');
+            return;
+        }
 
         const parentLink = Array.from(document.querySelectorAll('#family-tree div')).find(div => div.textContent.includes(parentName));
 
@@ -206,13 +207,12 @@
         }
     }
 
-    // Функция выделения предков по мужской линии
     function highlightMaleAncestors(element) {
         resetTreeHighlight();
 
         let currentElement = element;
         while (currentElement) {
-            currentElement.style.borderColor = '#e74c3c'; // выделение предка
+            currentElement.style.borderColor = '#e74c3c';
             const parentUl = currentElement.closest('li').parentElement.closest('li');
             if (parentUl) {
                 currentElement = parentUl.querySelector('.male');
@@ -222,7 +222,6 @@
         }
     }
 
-    // Сброс выделения дерева
     function resetTreeHighlight() {
         const allPersons = document.querySelectorAll('.person');
         allPersons.forEach(person => {
