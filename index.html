@@ -3,90 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Родословное Дерево</title>
+    <title>Красивое семейное дерево</title>
     
     <!-- CSS код -->
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+            text-align: center;
+        }
+
+        h2 {
+            color: #2c3e50;
+        }
+
+        .tree {
+            display: flex;
+            justify-content: center;
+            margin-top: 50px;
         }
 
         .tree ul {
             list-style-type: none;
-            padding-left: 20px;
+            padding: 0;
+            margin: 0;
+            position: relative;
+        }
+
+        .tree ul ul {
+            margin-top: 20px;
         }
 
         .tree li {
-            margin: 5px 0;
+            display: inline-block;
+            text-align: center;
+            vertical-align: top;
             position: relative;
-            padding-left: 20px;
+            padding: 20px 5px 0 5px;
         }
 
-        .tree li::before {
-            content: "";
+        .tree li::before, .tree li::after {
+            content: '';
             position: absolute;
             top: 0;
-            left: 0;
-            width: 1px;
-            height: 100%;
-            border-left: 1px solid #000;
+            right: 50%;
+            border-top: 2px solid #ccc;
+            width: 50%;
+            height: 20px;
         }
 
         .tree li::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: -20px;
-            width: 20px;
-            border-top: 1px solid #000;
+            right: auto;
+            left: 50%;
+            border-left: 2px solid #ccc;
+        }
+
+        .tree li:only-child::after, .tree li:only-child::before {
+            display: none;
+        }
+
+        .tree li:only-child {
+            padding-top: 0;
+        }
+
+        .tree li:first-child::before, .tree li:last-child::after {
+            border: 0 none;
+        }
+
+        .tree li:last-child::before {
+            border-right: 2px solid #ccc;
+        }
+
+        .tree li:first-child::after {
+            border-left: 2px solid #ccc;
         }
 
         .person {
-            display: flex;
-            align-items: center;
+            display: inline-block;
+            border: 2px solid #ccc;
+            padding: 10px;
+            border-radius: 50%;
+            background-color: #fff;
+            width: 60px;
+            height: 60px;
+            position: relative;
             cursor: pointer;
         }
 
-        .person-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-            background-color: #e6e6e6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 20px;
-        }
-
         .male {
-            background-image: url('https://via.placeholder.com/40x40?text=%F0%9F%91%A8%F0%9F%92%84');
+            background-image: url('https://via.placeholder.com/60x60?text=%F0%9F%91%A8');
             background-size: cover;
         }
 
         .female {
-            background-image: url('https://via.placeholder.com/40x40?text=%F0%9F%91%A9%F0%9F%92%85');
+            background-image: url('https://via.placeholder.com/60x60?text=%F0%9F%91%A9');
             background-size: cover;
         }
 
         .add-relative-form {
-            margin-top: 20px;
+            margin-top: 40px;
+        }
+
+        .add-relative-form input, .add-relative-form select {
+            padding: 10px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .add-relative-form button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .add-relative-form button:hover {
+            background-color: #2980b9;
         }
     </style>
 </head>
 <body>
 
-<h2>Родословное Дерево</h2>
+<h2>Семейное Дерево</h2>
 
 <!-- Дерево -->
 <div class="tree">
     <ul id="family-tree">
         <li>
-            <div class="person" onclick="removePerson(event, 'Кучак')">
-                <div class="person-icon male"></div>
-                <span>Кучак</span>
-            </div>
+            <div class="person male" onclick="highlightMaleAncestors(this)">Кучак</div>
             <ul></ul>
         </li>
     </ul>
@@ -109,7 +158,6 @@
         <option value="child">Сын/Дочь</option>
         <option value="sibling">Брат/Сестра</option>
         <option value="parent">Мать/Отец</option>
-        <option value="uncle_aunt">Дядя/Тётя</option>
     </select>
     <br><br>
     <label for="parent-name">Имя родителя/сиблинга:</label>
@@ -126,7 +174,7 @@
         const relativeType = document.getElementById('relative-type').value;
         const parentName = document.getElementById('parent-name').value;
 
-        const parentLink = Array.from(document.querySelectorAll('#family-tree span')).find(span => span.textContent === parentName);
+        const parentLink = Array.from(document.querySelectorAll('#family-tree div')).find(div => div.textContent.includes(parentName));
 
         if (parentLink) {
             const parentUl = parentLink.parentElement.querySelector('ul') || document.createElement('ul');
@@ -137,10 +185,7 @@
             const newLi = document.createElement('li');
             const iconClass = relativeGender === 'male' ? 'male' : 'female';
             newLi.innerHTML = `
-                <div class="person" onclick="removePerson(event, '${relativeName}')">
-                    <div class="person-icon ${iconClass}"></div>
-                    <span>${relativeName}</span>
-                </div>
+                <div class="person ${iconClass}" onclick="highlightMaleAncestors(this)">${relativeName}</div>
                 <ul></ul>
             `;
 
@@ -151,9 +196,6 @@
             } else if (relativeType === 'parent') {
                 const grandparentLi = parentLink.closest('ul').parentElement;
                 grandparentLi.appendChild(newLi);
-            } else if (relativeType === 'uncle_aunt') {
-                const grandparentUl = parentLink.closest('ul').parentElement.parentElement;
-                grandparentUl.appendChild(newLi);
             }
 
             // Очистка полей
@@ -164,12 +206,28 @@
         }
     }
 
-    function removePerson(event, personName) {
-        event.stopPropagation();
-        if (confirm(`Удалить ${personName} из списка?`)) {
-            const li = event.target.closest('li');
-            li.parentElement.removeChild(li);
+    // Функция выделения предков по мужской линии
+    function highlightMaleAncestors(element) {
+        resetTreeHighlight();
+
+        let currentElement = element;
+        while (currentElement) {
+            currentElement.style.borderColor = '#e74c3c'; // выделение предка
+            const parentUl = currentElement.closest('li').parentElement.closest('li');
+            if (parentUl) {
+                currentElement = parentUl.querySelector('.male');
+            } else {
+                currentElement = null;
+            }
         }
+    }
+
+    // Сброс выделения дерева
+    function resetTreeHighlight() {
+        const allPersons = document.querySelectorAll('.person');
+        allPersons.forEach(person => {
+            person.style.borderColor = '#ccc';
+        });
     }
 </script>
 
