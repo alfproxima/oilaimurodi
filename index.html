@@ -43,6 +43,7 @@
             padding: 20px 5px 0 5px;
         }
 
+        /* Линии соединения между поколениями */
         .tree li::before, .tree li::after {
             content: '';
             position: absolute;
@@ -79,6 +80,7 @@
             border-left: 2px solid #ccc;
         }
 
+        /* Кружки для иконок мужчин и женщин */
         .person {
             display: inline-block;
             border: 2px solid #ccc;
@@ -89,18 +91,20 @@
             height: 60px;
             position: relative;
             cursor: pointer;
+            background-position: center;
+            background-size: contain;
+            background-repeat: no-repeat;
         }
 
         .male {
-            background-image: url('https://via.placeholder.com/60x60?text=👨');
-            background-size: cover;
+            background-image: url('https://via.placeholder.com/60x60?text=👨'); /* Замена на URL иконки */
         }
 
         .female {
-            background-image: url('https://via.placeholder.com/60x60?text=👩');
-            background-size: cover;
+            background-image: url('https://via.placeholder.com/60x60?text=👩'); /* Замена на URL иконки */
         }
 
+        /* Стили для формы добавления родственников */
         .add-relative-form {
             margin-top: 40px;
         }
