@@ -8,7 +8,8 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background: linear-gradient(to bottom right, #ffefba, #ffffff);
+            background: url('https://www.treebackground.jpg') no-repeat center center fixed;
+            background-size: cover;
             color: #333;
         }
 
@@ -18,7 +19,7 @@
             overflow: auto;
             border: 2px solid #ccc;
             border-radius: 8px;
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.8);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             margin-bottom: 20px;
         }
@@ -130,16 +131,6 @@
           .enter().append("g")
             .attr("class", d => "node " + (d.data.gender === 'male' ? 'male' : 'female'))
             .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
-
-        // Добавляем иконки вместо кругов
-        node.append("image")
-            .attr("xlink:href", d => d.data.gender === 'male'
-                ? "https://cdn4.dreamstime.com/flat-muslim-man-icon-image115067198.jpg"
-                : "https://image.favpng.com/cN5K5GjZ.jpg")
-            .attr("x", -25)
-            .attr("y", -25)
-            .attr("width", 50)
-            .attr("height", 50);
 
         // Добавляем текст с именем
         node.append("text")
