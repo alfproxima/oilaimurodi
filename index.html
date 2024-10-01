@@ -23,7 +23,7 @@
             margin-bottom: 20px;
         }
 
-        .node image {
+        .node img {
             width: 50px;
             height: 50px;
             border-radius: 50%;
@@ -62,7 +62,6 @@
             stroke: #ccc;
             stroke-width: 2px;
         }
-
     </style>
 </head>
 <body>
@@ -141,8 +140,8 @@
         // Добавляем иконки вместо кругов
         node.append("image")
             .attr("xlink:href", d => d.data.gender === 'male'
-                ? "https://cdn4.dreamstime.com/flat-muslim-man-icon-image115067198.jpg"
-                : "https://image.favpng.com/cN5K5GjZ.jpg")
+                ? "https://example.com/male-icon.png"
+                : "https://example.com/female-icon.png")
             .attr("x", -25)
             .attr("y", -25)
             .attr("width", 50)
