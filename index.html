@@ -9,50 +9,30 @@
             font-family: Arial, sans-serif;
             text-align: center;
             background: linear-gradient(to bottom right, #ffefba, #ffffff);
-            /* Градиентный фон от светло-желтого к белому */
             color: #333;
         }
 
         #tree-container {
             width: 100%;
-            height: calc(100vh - 150px); /* Оставляем место для формы */
+            height: calc(100vh - 150px);
             overflow: auto;
             border: 2px solid #ccc;
             border-radius: 8px;
-            background-color: #ffffff; /* Белый фон для дерева */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень для контейнера */
-            margin-bottom: 20px; /* Отступ внизу */
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
         }
 
-        .node circle {
-            fill: #fff;
-            stroke: steelblue;
-            stroke-width: 4px; /* Увеличена ширина обводки */
-            r: 20; /* Увеличенный радиус круга */
-        }
-
-        .node text {
-            font: 14px sans-serif; /* Увеличен шрифт для имени */
-        }
-
-        .link {
-            fill: none;
-            stroke: #ccc;
-            stroke-width: 2px;
-        }
-
-        .male circle {
-            fill: #add8e6; /* Цвет для мужчин */
-        }
-
-        .female circle {
-            fill: #ffb6c1; /* Цвет для женщин */
+        .node image {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
         }
 
         .add-form {
             margin-top: 20px;
             padding: 20px;
-            background-color: rgba(255, 255, 255, 0.9); /* Полупрозрачный фон для формы */
+            background-color: rgba(255, 255, 255, 0.9);
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
@@ -62,8 +42,8 @@
             margin: 10px;
             border: 2px solid #ccc;
             border-radius: 4px;
-            width: calc(100% - 22px); /* Учитываем отступы */
-            max-width: 300px; /* Максимальная ширина */
+            width: calc(100% - 22px);
+            max-width: 300px;
             font-size: 16px;
         }
 
@@ -76,6 +56,13 @@
         .add-form button:hover {
             background-color: #218838;
         }
+
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 2px;
+        }
+
     </style>
 </head>
 <body>
@@ -114,9 +101,8 @@
     };
 
     function updateTree() {
-        // Очищаем контейнер для перерисовки
         const container = d3.select("#tree-container");
-        container.selectAll("*").remove(); // Удаляем всё перед перерисовкой
+        container.selectAll("*").remove();
 
         const margin = { top: 20, right: 120, bottom: 20, left: 120 },
               width = window.innerWidth - margin.right - margin.left,
@@ -130,7 +116,7 @@
 
         const root = d3.hierarchy(treeData);
 
-        const treeLayout = d3.tree().size([height, width - 160]);
+        const treeLayout = d3.tree().size([width, height]);
 
         const nodes = treeLayout(root);
 
@@ -141,7 +127,9 @@
             .attr("class", "link")
             .attr("d", d3.linkVertical()
                 .x(d => d.x)
-                .y(d => d.y));
+                .y(d => d.y))
+            .attr("stroke", "#ccc")
+            .attr("stroke-width", 2);
 
         // Узлы (члены семьи)
         const node = svg.selectAll(".node")
@@ -150,9 +138,17 @@
             .attr("class", d => "node " + (d.data.gender === 'male' ? 'male' : 'female'))
             .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
 
-        node.append("circle")
-            .attr("r", 20); // Увеличен радиус круга
+        // Добавляем иконки вместо кругов
+        node.append("image")
+            .attr("xlink:href", d => d.data.gender === 'male'
+                ? "https://cdn4.dreamstime.com/flat-muslim-man-icon-image115067198.jpg"
+                : "https://image.favpng.com/cN5K5GjZ.jpg")
+            .attr("x", -25)
+            .attr("y", -25)
+            .attr("width", 50)
+            .attr("height", 50);
 
+        // Добавляем текст с именем
         node.append("text")
             .attr("dy", ".35em")
             .attr("x", d => d.children ? -13 : 13)
@@ -171,18 +167,15 @@
             return;
         }
 
-        // Создание нового узла
         const newPerson = {
             name: name,
             gender: gender,
             children: []
         };
 
-        // Если выбрана опция "Без родителей"
         if (relation === "noRelation") {
             treeData.children.push(newPerson);
         } else if (relativeName) {
-            // Функция поиска родственника по имени
             function findPersonByName(node, name) {
                 if (node.name === name) {
                     return node;
@@ -197,9 +190,6 @@
 
             const relative = findPersonByName(treeData, relativeName);
             if (relative) {
-                if (!relative.children) {
-                    relative.children = [];
-                }
                 relative.children.push(newPerson);
             } else {
                 alert('Родственник не найден!');
@@ -210,12 +200,10 @@
 
         updateTree();
 
-        // Очистка полей
         document.getElementById('name').value = '';
         document.getElementById('relativeName').value = '';
     }
 
-    // Инициализация дерева
     updateTree();
 </script>
 
